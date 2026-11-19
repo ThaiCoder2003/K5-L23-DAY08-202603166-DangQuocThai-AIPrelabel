@@ -1,4 +1,4 @@
-# Báo cáo Day 08 — <<MSHV - Họ và tên>>
+# Báo cáo Day 08 — 202603166 - DDawngj Quoocs Thais
 
 > Một file duy nhất cho cả bài (đã gộp recipe, QC và ghi chú cá nhân). Mọi con số kèm **mẫu số** và nguồn (file nào). Viết bằng lời của bạn.
 
@@ -6,12 +6,23 @@
 
 | Lớp | Model + cỡ | Ngưỡng | Vì sao (dẫn `run_id` trong `model_log.csv`) |
 |---|---|---|---|
-| person / bicycle / motorbike / car / bus / truck | <<YOLO26m>> | <<theo lớp, từ threshold_sweep>> | <<>> |
+| person / bicycle / motorbike / car / bus / truck | YOLO26m | <<theo lớp, từ threshold_sweep>> | <<>> |
 | three_wheeler | <<YOLOE-26s, prompt: ...>> | <<>> | <<>> |
+| Lớp | Model + cỡ | Ngưỡng gợi ý | Lý do |
+|---|---|---|---|
+| person | YOLO26m | 0.3 | recall 100% (>= 90%), precision 68% (19 vật gold) |
+| bicycle | YOLO26m | (mặc định) | chỉ 1 vật trong ảnh gold (< 5): mẫu quá ít, KHÔNG chọn ngưỡng theo lớp này, dùng ngưỡng mặc định |
+| motorbike | YOLO26m | (mặc định) | chỉ 0 vật trong ảnh gold (< 5): mẫu quá ít, KHÔNG chọn ngưỡng theo lớp này, dùng ngưỡng mặc định |
+| car | YOLO26m | (mặc định) | không ngưỡng nào <= 0.5 đạt recall 90% (tối đa 86%, 7 vật): dùng ngưỡng mặc định, nói rõ trong báo cáo |
+| truck | YOLO26m | (mặc định) | chỉ 1 vật trong ảnh gold (< 5): mẫu quá ít, KHÔNG chọn ngưỡng theo lớp này, dùng ngưỡng mặc định |
+| three_wheeler | YOLOE-26s, prompt: tuk-tuk / cyclo / cargo tricycle | (mặc định) | không ngưỡng nào <= 0.5 đạt recall 90% (tối đa 88%, 8 vật): dùng ngưỡng mặc định, nói rõ trong báo cáo |
 
-- Lệnh `merge_prelabels.py` đã dùng (dán nguyên): <<>>
-- **Phiên bản SAM bạn chọn** (SAM 1 / 2.1 / 3) và lý do: <<chất lượng mask, tốc độ, RAM, quyền truy cập>>
-- Lỗi nào **không sửa được bằng đổi ngưỡng** (ví dụ tuk-tuk bị gọi `car`)? Sửa thế nào? <<>>
+- Lệnh `merge_prelabels.py` đã dùng (dán nguyên): 
+python scripts/merge_prelabels.py work/prelabel/yoloe_all/pre.coco.json work/prelabel/y26_all/pre.coco.json --thr "person=0.35,motorbike=0.5,car=0.35" --conf 0.3 --iou 0.6 --split "batch,gold" --out work/prelabel/merged_review/pre.coco.json
+python scripts/inject_traps.py --pre work/prelabel/merged_review/pre.coco.json --student "202603166"
+
+- **Phiên bản SAM bạn chọn** (SAM 1 / 2.1 / 3) và lý do: SAM 2.1 vì nó là mô hình mới nhất phù hợp với máy
+- Lỗi nào **không sửa được bằng đổi ngưỡng** (ví dụ tuk-tuk bị gọi `car`)? Sửa thế nào? 
 - Box **điểm cao mà sai** hoặc **điểm thấp mà đúng** (ảnh nào): <<>>
 - Giới hạn: chọn ngưỡng trên chính gold (4 ảnh) nên số đo máy trên gold là lạc quan: <<>>
 
@@ -19,13 +30,15 @@
 
 | Trạng thái | Số | Tỉ lệ | Mẫu số |
 |---|---|---|---|
-| accepted | <<>> | <<>> | <<box máy>> |
-| edited | <<>> | <<>> | <<>> |
-| deleted | <<>> | <<>> | <<>> |
-| added | <<>> | <<>> | <<đối tượng sau duyệt>> |
+| accepted (giữ nguyên) | 418 | 418/433 = 96.5% | 433 box máy |
+| edited (sửa) | 2 | 2/433 = 0.5% | 433 box máy |
+| deleted (xoá) | 8 | 8/433 = 1.8% | 433 box máy |
+| added (vẽ thêm) | 31 | 31/451 = 6.9% | 451 đối tượng sau duyệt |
 
-- Lớp nào máy tệ nhất? Vì sao (dẫn ảnh)? <<>>
-- So với gold: precision / recall của **máy** <<>> (mẫu số: <<đối tượng gold>>)
+- Lớp nào máy tệ nhất? Vì sao (dẫn ảnh)? Bus là lớp tệ nhất
+- So với gold: precision / recall của **máy** 
+Precision: 52.0% (KTC 95%: 33–70%) 
+Recall: 56.5% (KTC 95%: 37–74%) |
 
 ## 3. Thiên kiến tự động hóa và ảnh bẫy
 
@@ -34,7 +47,7 @@
 
 ## 4. Máy có đáng dùng không?
 
-- Thời gian (từ `time_log.csv`): gán tay <<... phút/ảnh>> vs duyệt <<... phút/ảnh>>. Thiên lệch (bạn gán gold trước nên đã quen cảnh): <<>>
+- Thời gian (từ `time_log.csv`): gán tay 5 phút/ảnh vs duyệt <<... phút/ảnh>>. Thiên lệch (bạn gán gold trước nên đã quen cảnh): <<>>
 - Kết luận: <<có / không / chỉ cho lớp nào>>, dựa trên <<số liệu>>
 - **Ba quy tắc giảm thiên kiến của bạn** (mỗi quy tắc kiểm tra được bằng số hoặc việc làm):
   1. <<>>

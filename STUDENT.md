@@ -1,12 +1,12 @@
 # Thông tin học viên
 
-- Họ và tên: <<>>
+- Họ và tên: Đặng Quốc Thái
 - MSHV: <<>>
-- Lớp (L2 / L3 / khác): <<>>
+- Lớp (L2 / L3 / khác): L2
 - Tài khoản GitHub: <<>>
 - Repo bài nộp (URL): <<>>
 - Commit chốt bài (hash): <<>>
-- Máy: <<hệ điều hành, GPU (CUDA / MPS / không có)>>
+- Máy: Windows, CPU
 - CVAT (Docker): <<phiên bản, ví dụ v2.81.0>>
 
 ## Kết quả tóm tắt (điền cuối bài; số lấy từ `submission/qc/*`, kèm mẫu số)
